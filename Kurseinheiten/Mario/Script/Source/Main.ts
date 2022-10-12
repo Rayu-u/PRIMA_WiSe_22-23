@@ -7,15 +7,44 @@ namespace Script {
 
   // Add eventlistener for the loading of the window
   //window.addEventListener("load", onLoad);  
-  window.addEventListener("interactiveViewportStarted", onViewportStart)
+  //window.addEventListener("interactiveViewportStarted", onViewportStart)
 
   // Define marioSpriteNode from FUDGE
   let marioSpriteNode: ƒAid.NodeSprite;
 
+  let mario: ƒ.Node;
+
   // load Handler
-  async function onViewportStart(_event: Event): Promise<void> {
-    // make new Node with name root
-    let root: ƒ.Node = new ƒ.Node("root");
+
+  document.addEventListener("interactiveViewportStarted", <EventListener><unknown>start);
+
+  async function start(_event: CustomEvent): Promise<void> {
+    viewport = _event.detail;
+
+    let graph: ƒ.Node = viewport.getBranch();
+    mario = graph.getChildrenByName("MarioTransform")[0].getChildrenByName("Mario")[0];
+
+    console.log("branch" + graph.name);
+    console.log("mario" + mario.name);
+    
+    marioSpriteNode = await createMarioSprite();
+    mario.addChild(marioSpriteNode);
+    mario.getComponent(ƒ.ComponentMaterial).activate(false);
+
+    ƒ.Loop.addEventListener(ƒ.EVENT.LOOP_FRAME, update);
+    // ƒ.Loop.start();  // start the game loop to continously draw the viewport, update the audiosystem and drive the physics i/a
+
+    // edit framerate here
+    ƒ.Loop.start(ƒ.LOOP_MODE.TIME_GAME, 10);
+  }
+  
+  function update(_event: Event): void {
+    // ƒ.Physics.simulate();  // if physics is included and used
+    viewport.draw();
+    ƒ.AudioManager.default.update();
+  }
+
+  async function createMarioSprite(): Promise<ƒAid.NodeSprite> {
 
     // load spritesheet from folder and add a "coat" to it.
     let marioSpriteSheet: ƒ.TextureImage = new ƒ.TextureImage();
@@ -41,57 +70,9 @@ namespace Script {
     //set framerate here
     marioSpriteNode.framerate = 10;
 
-    root.addChild(marioSpriteNode);
-
-    // camera setup
-    let cmpCamera: ƒ.ComponentCamera = new ƒ.ComponentCamera();
-    cmpCamera.mtxPivot.translateZ(5);
-    cmpCamera.mtxPivot.rotateY(180);
-
-    // setup viewport
-    const canvas: HTMLCanvasElement = document.querySelector("canvas");
-
-    viewport = new ƒ.Viewport();
-    viewport.initialize("Viewport", root, cmpCamera, canvas);
-    viewport.camera.clrBackground = ƒ.Color.CSS("White");
-    viewport.draw();
-
-    // actually let the loop run
-    ƒ.Loop.addEventListener(ƒ.EVENT.LOOP_FRAME, loop);
-    // edit framerate here
-    ƒ.Loop.start(ƒ.LOOP_MODE.TIME_GAME, 10);
-
-    // was ist change?
-    document.forms[0].addEventListener("change", onChange);
+    return marioSpriteNode;
   }
 
-  function loop(_event: Event): void {
-
-    // is this even useful anymore now?
-    viewport.draw();
-  }
-
-  function onChange(_event: Event): void {
-    // framerate is set here again? How do these connect?
-    let value: number = parseInt((<HTMLInputElement>_event.target).value);
-    marioSpriteNode.framerate = value;
-    console.log("framerate set to: " + value);
-  }
-
-  document.addEventListener("interactiveViewportStarted", <EventListener>start);
-
-  function start(_event: CustomEvent): void {
-    viewport = _event.detail;
-
-    ƒ.Loop.addEventListener(ƒ.EVENT.LOOP_FRAME, update);
-    // ƒ.Loop.start();  // start the game loop to continously draw the viewport, update the audiosystem and drive the physics i/a
-  }
-
-  function update(_event: Event): void {
-    // ƒ.Physics.simulate();  // if physics is included and used
-    viewport.draw();
-    ƒ.AudioManager.default.update();
-  }
 
 
 }

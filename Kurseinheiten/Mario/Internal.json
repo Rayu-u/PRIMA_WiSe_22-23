@@ -119,7 +119,7 @@
             "children": [
               {
                 "ƒ.Node": {
-                  "name": "Player",
+                  "name": "Mario",
                   "active": true,
                   "components": {
                     "ComponentMesh": [
