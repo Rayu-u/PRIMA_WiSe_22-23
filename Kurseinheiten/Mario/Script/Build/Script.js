@@ -43,11 +43,12 @@ var Script;
     ƒ.Debug.info("Main Program Template running!");
     let viewport;
     // Add eventlistener for the loading of the window
-    window.addEventListener("load", onLoad);
+    //window.addEventListener("load", onLoad);  
+    window.addEventListener("interactiveViewportStarted", onViewportStart);
     // Define marioSpriteNode from FUDGE
     let marioSpriteNode;
     // load Handler
-    async function onLoad(_event) {
+    async function onViewportStart(_event) {
         // make new Node with name root
         let root = new ƒ.Node("root");
         // load spritesheet from folder and add a "coat" to it.

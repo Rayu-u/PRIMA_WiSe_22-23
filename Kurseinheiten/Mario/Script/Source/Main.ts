@@ -6,12 +6,14 @@ namespace Script {
   let viewport: ƒ.Viewport;
 
   // Add eventlistener for the loading of the window
-  window.addEventListener("load", onLoad);
+  //window.addEventListener("load", onLoad);  
+  window.addEventListener("interactiveViewportStarted", onViewportStart)
+
   // Define marioSpriteNode from FUDGE
   let marioSpriteNode: ƒAid.NodeSprite;
 
   // load Handler
-  async function onLoad(_event: Event): Promise<void> {
+  async function onViewportStart(_event: Event): Promise<void> {
     // make new Node with name root
     let root: ƒ.Node = new ƒ.Node("root");
 
