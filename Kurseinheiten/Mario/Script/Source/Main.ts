@@ -35,7 +35,7 @@ namespace Script {
     // ƒ.Loop.start();  // start the game loop to continously draw the viewport, update the audiosystem and drive the physics i/a
 
     // edit framerate here
-    ƒ.Loop.start(ƒ.LOOP_MODE.TIME_GAME, 10);
+    ƒ.Loop.start(ƒ.LOOP_MODE.TIME_GAME, 12);
   }
   
   function update(_event: Event): void {
@@ -53,7 +53,7 @@ namespace Script {
     
     // add running animation
     let marioAnimation: ƒAid.SpriteSheetAnimation = new ƒAid.SpriteSheetAnimation("Mario_Run", coat);
-    marioAnimation.generateByGrid(ƒ.Rectangle.GET(0, 0, 40, 56), 12, 40, ƒ.ORIGIN2D.BOTTOMCENTER, ƒ.Vector2.X(40));
+    marioAnimation.generateByGrid(ƒ.Rectangle.GET(0, 56, 40, 56), 12, 40, ƒ.ORIGIN2D.BOTTOMCENTER, ƒ.Vector2.X(40));
     
 
     marioSpriteNode = new ƒAid.NodeSprite("Mario_Sprite");
@@ -68,10 +68,16 @@ namespace Script {
     marioSpriteNode.mtxLocal.translateY(-1);
 
     //set framerate here
-    marioSpriteNode.framerate = 10;
+    marioSpriteNode.framerate = 12;
 
     return marioSpriteNode;
   }
+
+  function turnAround(nodeToTurn: ƒ.Node): void {
+    let transformComponent: ƒ.ComponentTransform = nodeToTurn.getComponent(ƒ.ComponentTransform);
+    transformComponent.mtxLocal.rotateY(-180);
+  }
+    	
 
 
 

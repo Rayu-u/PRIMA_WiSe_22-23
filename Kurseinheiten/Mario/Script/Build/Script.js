@@ -62,7 +62,7 @@ var Script;
         ƒ.Loop.addEventListener("loopFrame" /* ƒ.EVENT.LOOP_FRAME */, update);
         // ƒ.Loop.start();  // start the game loop to continously draw the viewport, update the audiosystem and drive the physics i/a
         // edit framerate here
-        ƒ.Loop.start(ƒ.LOOP_MODE.TIME_GAME, 10);
+        ƒ.Loop.start(ƒ.LOOP_MODE.TIME_GAME, 12);
     }
     function update(_event) {
         // ƒ.Physics.simulate();  // if physics is included and used
@@ -86,8 +86,12 @@ var Script;
         // wohl unnötig?
         marioSpriteNode.mtxLocal.translateY(-1);
         //set framerate here
-        marioSpriteNode.framerate = 10;
+        marioSpriteNode.framerate = 12;
         return marioSpriteNode;
+    }
+    function turnAround(nodeToTurn) {
+        let transformComponent = nodeToTurn.getComponent(ƒ.ComponentTransform);
+        transformComponent.mtxLocal.rotateY(-180);
     }
 })(Script || (Script = {}));
 //# sourceMappingURL=Script.js.map
