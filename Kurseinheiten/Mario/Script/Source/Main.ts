@@ -53,7 +53,7 @@ namespace Script {
     
     // add running animation
     let marioAnimation: ƒAid.SpriteSheetAnimation = new ƒAid.SpriteSheetAnimation("Mario_Run", coat);
-    marioAnimation.generateByGrid(ƒ.Rectangle.GET(0, 56, 40, 56), 12, 40, ƒ.ORIGIN2D.BOTTOMCENTER, ƒ.Vector2.X(40));
+    marioAnimation.generateByGrid(ƒ.Rectangle.GET(0, 0, 40, 56), 12, 40, ƒ.ORIGIN2D.BOTTOMCENTER, ƒ.Vector2.X(40));
     
 
     marioSpriteNode = new ƒAid.NodeSprite("Mario_Sprite");
