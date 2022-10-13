@@ -51,6 +51,7 @@ var Script;
     // load Handler
     document.addEventListener("interactiveViewportStarted", start);
     async function start(_event) {
+        // _event.detail IST der viewport. deshalb können wir das so zuweisen
         viewport = _event.detail;
         let graph = viewport.getBranch();
         mario = graph.getChildrenByName("MarioTransform")[0].getChildrenByName("Mario")[0];
@@ -92,6 +93,21 @@ var Script;
     function turnAround(nodeToTurn) {
         let transformComponent = nodeToTurn.getComponent(ƒ.ComponentTransform);
         transformComponent.mtxLocal.rotateY(-180);
+    }
+    function changeAnimation(nameOfAnimatable, animationName, nodeToAnimate) {
+        switch (nameOfAnimatable) {
+            case "mario":
+                switch (animationName) {
+                    case "stand":
+                        console.log("stand!!");
+                    case "run":
+                        console.log("run!!");
+                    case "jump":
+                        console.log("jump!!");
+                    case "die":
+                        console.log("dead :(");
+                }
+        }
     }
 })(Script || (Script = {}));
 //# sourceMappingURL=Script.js.map

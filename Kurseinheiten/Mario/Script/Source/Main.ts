@@ -19,6 +19,7 @@ namespace Script {
   document.addEventListener("interactiveViewportStarted", <EventListener><unknown>start);
 
   async function start(_event: CustomEvent): Promise<void> {
+    // _event.detail IST der viewport. deshalb können wir das so zuweisen
     viewport = _event.detail;
 
     let graph: ƒ.Node = viewport.getBranch();
@@ -76,6 +77,23 @@ namespace Script {
   function turnAround(nodeToTurn: ƒ.Node): void {
     let transformComponent: ƒ.ComponentTransform = nodeToTurn.getComponent(ƒ.ComponentTransform);
     transformComponent.mtxLocal.rotateY(-180);
+  }
+
+  function changeAnimation(nameOfAnimatable: string, animationName: string, nodeToAnimate: ƒ.Node): void {
+    switch (nameOfAnimatable) {
+      case "mario":
+        switch (animationName) {
+          case "stand":
+            console.log("stand!!");
+          case "run":
+            console.log("run!!");
+          case "jump":
+            console.log("jump!!");
+          case "die":
+            console.log("dead :(");
+        }
+    }
+
   }
     	
 
