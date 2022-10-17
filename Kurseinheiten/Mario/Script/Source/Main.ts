@@ -5,21 +5,22 @@ namespace Script {
 
   let viewport: ƒ.Viewport;
 
-  // Add eventlistener for the loading of the window
-  //window.addEventListener("load", onLoad);  
-  //window.addEventListener("interactiveViewportStarted", onViewportStart)
-
   // Define marioSpriteNode from FUDGE
   let marioSpriteNode: ƒAid.NodeSprite;
-
   let mario: ƒ.Node;
 
   let horizontalPlayerMovement: number = 0;
 
-  // load Handler
-
+  // should not loop, but will only have one frame so it doesnt show a difference visually if one frame loops
+  let marioStandAnimation: ƒAid.SpriteSheetAnimation;
+  // should loop, so currently fine
+  let marioRunAnimation: ƒAid.SpriteSheetAnimation;
+  // TODO: Should match Jumpduration and not loop. Jump is a difficult event
+  let marioJumpAnimation: ƒAid.SpriteSheetAnimation;
+  // TODO: shouldnt loop later.
+  let marioDieAnimation: ƒAid.SpriteSheetAnimation;
+  
   document.addEventListener("interactiveViewportStarted", <EventListener><unknown>start);
-  let controlProportional: ƒ.Control = new ƒ.Control("Proportional", 1, ƒ.CONTROL_TYPE.PROPORTIONAL);
 
   async function start(_event: CustomEvent): Promise<void> {
     // _event.detail IST der viewport. deshalb können wir das so zuweisen
@@ -31,9 +32,7 @@ namespace Script {
     console.log("branch" + graph.name);
     console.log("mario" + mario.name);
     
-    marioSpriteNode = await createMarioSprite();
-    mario.addChild(marioSpriteNode);
-    mario.getComponent(ƒ.ComponentMaterial).activate(false);
+    await initMario()
 
     document.addEventListener("keyup", onKey);
     document.addEventListener("keydown", onKey);
@@ -43,6 +42,44 @@ namespace Script {
 
     // edit framerate here
     ƒ.Loop.start(ƒ.LOOP_MODE.TIME_GAME, 12);
+  }
+  async function initMario(): Promise<void> {
+    //initialize animations seen above
+    await initAnimations()
+    marioSpriteNode = new ƒAid.NodeSprite("Mario_Sprite");
+    // adds a transform component to the sprite
+    marioSpriteNode.addComponent(new ƒ.ComponentTransform(new ƒ.Matrix4x4()));
+    marioSpriteNode.setAnimation(marioStandAnimation);
+    // play animation forwards
+    marioSpriteNode.setFrameDirection(1);
+
+    // wohl unnötig?
+    marioSpriteNode.mtxLocal.translateY(-1);
+
+    //set framerate here
+    marioSpriteNode.framerate = 12;
+
+    mario.addChild(marioSpriteNode);
+    mario.getComponent(ƒ.ComponentMaterial).activate(false);
+  }
+
+  async function initAnimations(): Promise<void> {
+    // load spritesheet from folder and add a "coat" to it.
+    let marioSpriteSheet: ƒ.TextureImage = new ƒ.TextureImage();
+    await marioSpriteSheet.load("Spritesheets/Mario/Mario_final-Sheet.png");
+    let coat: ƒ.CoatTextured = new ƒ.CoatTextured(undefined, marioSpriteSheet);
+
+    marioStandAnimation = new ƒAid.SpriteSheetAnimation("Mario_Stand", coat);
+    marioStandAnimation.generateByGrid(ƒ.Rectangle.GET(0, 0, 40, 56), 1, 40, ƒ.ORIGIN2D.BOTTOMCENTER, ƒ.Vector2.X(40));
+    
+    marioRunAnimation = new ƒAid.SpriteSheetAnimation("Mario_Run", coat);
+    marioRunAnimation.generateByGrid(ƒ.Rectangle.GET(0, 56, 40, 56), 12, 40, ƒ.ORIGIN2D.BOTTOMCENTER, ƒ.Vector2.X(40));
+    
+    marioJumpAnimation = new ƒAid.SpriteSheetAnimation("Mario_Jump", coat);
+    marioJumpAnimation.generateByGrid(ƒ.Rectangle.GET(0, 56*2, 40, 56), 10, 40, ƒ.ORIGIN2D.BOTTOMCENTER, ƒ.Vector2.X(40));
+    
+    marioDieAnimation = new ƒAid.SpriteSheetAnimation("Mario_Die", coat);
+    marioDieAnimation.generateByGrid(ƒ.Rectangle.GET(0, 56*3, 40, 56), 5, 40, ƒ.ORIGIN2D.BOTTOMCENTER, ƒ.Vector2.X(40));
   }
 
   let keyFirstPressed: boolean = true;
@@ -85,33 +122,6 @@ namespace Script {
     mario.getParent().mtxLocal.translateX(horizontalPlayerMovement);
   }
 
-  async function createMarioSprite(): Promise<ƒAid.NodeSprite> {
-    // load spritesheet from folder and add a "coat" to it.
-    let marioSpriteSheet: ƒ.TextureImage = new ƒ.TextureImage();
-    await marioSpriteSheet.load("Spritesheets/Mario/Mario_final-Sheet.png");
-    let coat: ƒ.CoatTextured = new ƒ.CoatTextured(undefined, marioSpriteSheet);
-    
-    // add running animation
-    let marioAnimation: ƒAid.SpriteSheetAnimation = new ƒAid.SpriteSheetAnimation("Mario_Run", coat);
-    marioAnimation.generateByGrid(ƒ.Rectangle.GET(0, 56, 40, 56), 12, 40, ƒ.ORIGIN2D.BOTTOMCENTER, ƒ.Vector2.X(40));
-
-    marioSpriteNode = new ƒAid.NodeSprite("Mario_Sprite");
-
-    // adds a transform component to the sprite
-    marioSpriteNode.addComponent(new ƒ.ComponentTransform(new ƒ.Matrix4x4()));
-    marioSpriteNode.setAnimation(marioAnimation);
-    // play animation forwards
-    marioSpriteNode.setFrameDirection(1);
-
-    // wohl unnötig?
-    marioSpriteNode.mtxLocal.translateY(-1);
-
-    //set framerate here
-    marioSpriteNode.framerate = 12;
-
-    return marioSpriteNode;
-  }
-
   let currentPlayerOrientation: number = 1;
   // 0 is left, 1 is right
   function turnAround(nodeToTurn: ƒ.Node, orientation: number): void {
@@ -128,15 +138,20 @@ namespace Script {
         switch (animationName) {
           case "stand":
             console.log("stand!!");
+            marioSpriteNode.setAnimation(marioStandAnimation);
             return;
           case "run":
             console.log("run!!");
+            marioSpriteNode.setAnimation(marioRunAnimation);
             return;
           case "jump":
             console.log("jump!!");
+            marioSpriteNode.setAnimation(marioJumpAnimation);
+            //marioSpriteNode.showFrame
             return;
           case "die":
             console.log("dead :(");
+            marioSpriteNode.setAnimation(marioDieAnimation);
             return;
         }
     }
