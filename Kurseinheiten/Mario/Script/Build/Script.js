@@ -62,11 +62,6 @@ var Script;
         marioSpriteNode = await createMarioSprite();
         mario.addChild(marioSpriteNode);
         mario.getComponent(ƒ.ComponentMaterial).activate(false);
-        controlProportional.addEventListener("output" /* ƒ.EVENT_CONTROL.OUTPUT */, (e) => {
-            if (!isCustomEvent(e))
-                throw new Error('not a custom event');
-            hndMovement(_event);
-        });
         document.addEventListener("keyup", onKey);
         document.addEventListener("keydown", onKey);
         ƒ.Loop.addEventListener("loopFrame" /* ƒ.EVENT.LOOP_FRAME */, update);
@@ -74,30 +69,34 @@ var Script;
         // edit framerate here
         ƒ.Loop.start(ƒ.LOOP_MODE.TIME_GAME, 12);
     }
-    // https://stackoverflow.com/questions/47166369/argument-of-type-e-customevent-void-is-not-assignable-to-parameter-of-ty
-    function isCustomEvent(event) {
-        return 'detail' in event;
-    }
+    let keyFirstPressed = true;
     function onKey(_event) {
         if (_event.code != ƒ.KEYBOARD_CODE.A && _event.code != ƒ.KEYBOARD_CODE.D)
             return;
         if (_event.type == "keyup") {
             horizontalPlayerMovement = 0;
-            console.log("Stop Press Key");
+            changeAnimation("mario", "stand", marioSpriteNode);
+            keyFirstPressed = true;
             return;
         }
         if (_event.code == ƒ.KEYBOARD_CODE.A) {
+            if (keyFirstPressed == true) {
+                changeAnimation("mario", "run", marioSpriteNode);
+                keyFirstPressed = false;
+            }
             horizontalPlayerMovement = -0.5;
             turnAround(marioSpriteNode, 0);
             console.log("left");
         }
         if (_event.code == ƒ.KEYBOARD_CODE.D) {
+            if (keyFirstPressed == true) {
+                changeAnimation("mario", "run", marioSpriteNode);
+                keyFirstPressed = false;
+            }
             horizontalPlayerMovement = 0.5;
             turnAround(marioSpriteNode, 1);
             console.log("right");
         }
-    }
-    function hndMovement(_event) {
     }
     function update(_event) {
         // ƒ.Physics.simulate();  // if physics is included and used
@@ -140,12 +139,16 @@ var Script;
                 switch (animationName) {
                     case "stand":
                         console.log("stand!!");
+                        return;
                     case "run":
                         console.log("run!!");
+                        return;
                     case "jump":
                         console.log("jump!!");
+                        return;
                     case "die":
                         console.log("dead :(");
+                        return;
                 }
         }
     }

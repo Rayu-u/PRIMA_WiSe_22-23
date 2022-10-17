@@ -34,15 +34,6 @@ namespace Script {
     marioSpriteNode = await createMarioSprite();
     mario.addChild(marioSpriteNode);
     mario.getComponent(ƒ.ComponentMaterial).activate(false);
-    
-
-    controlProportional.addEventListener(
-      ƒ.EVENT_CONTROL.OUTPUT, 
-      (e: Event) => {
-      if (!isCustomEvent(e))
-        throw new Error('not a custom event');
-      hndMovement(_event);
-      })
 
     document.addEventListener("keyup", onKey);
     document.addEventListener("keydown", onKey);
@@ -54,10 +45,6 @@ namespace Script {
     ƒ.Loop.start(ƒ.LOOP_MODE.TIME_GAME, 12);
   }
 
-  // https://stackoverflow.com/questions/47166369/argument-of-type-e-customevent-void-is-not-assignable-to-parameter-of-ty
-  function isCustomEvent(event: Event): event is CustomEvent {
-    return 'detail' in event;
-  }
 
   function onKey(_event: KeyboardEvent): void {
     if (_event.code != ƒ.KEYBOARD_CODE.A && _event.code != ƒ.KEYBOARD_CODE.D) return;
@@ -77,10 +64,6 @@ namespace Script {
       turnAround(marioSpriteNode, 1)
       console.log("right");
     }
-  }
-
-  function hndMovement(_event: CustomEvent): void {
-    
   }
   
   function update(_event: Event): void {
