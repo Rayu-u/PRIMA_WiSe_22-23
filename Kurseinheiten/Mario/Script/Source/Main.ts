@@ -45,23 +45,35 @@ namespace Script {
     ƒ.Loop.start(ƒ.LOOP_MODE.TIME_GAME, 12);
   }
 
+  let keyFirstPressed: boolean = true;
 
   function onKey(_event: KeyboardEvent): void {
     if (_event.code != ƒ.KEYBOARD_CODE.A && _event.code != ƒ.KEYBOARD_CODE.D) return;
     
     if (_event.type == "keyup") {
       horizontalPlayerMovement = 0;
-      console.log("Stop Press Key");
+      changeAnimation("mario", "stand", marioSpriteNode);
+      keyFirstPressed = true;
       return;
     } 
     if(_event.code == ƒ.KEYBOARD_CODE.A){
+      if (keyFirstPressed == true) {
+        changeAnimation("mario", "run", marioSpriteNode);
+        keyFirstPressed = false;
+      }
       horizontalPlayerMovement = -0.5;
-      turnAround(marioSpriteNode, 0)
+      turnAround(marioSpriteNode, 0);
       console.log("left");
     }
+
     if(_event.code == ƒ.KEYBOARD_CODE.D){
+      if (keyFirstPressed == true) {
+        changeAnimation("mario", "run", marioSpriteNode);
+        keyFirstPressed = false;
+      }
+
       horizontalPlayerMovement = 0.5;
-      turnAround(marioSpriteNode, 1)
+      turnAround(marioSpriteNode, 1);
       console.log("right");
     }
   }
@@ -74,7 +86,6 @@ namespace Script {
   }
 
   async function createMarioSprite(): Promise<ƒAid.NodeSprite> {
-
     // load spritesheet from folder and add a "coat" to it.
     let marioSpriteSheet: ƒ.TextureImage = new ƒ.TextureImage();
     await marioSpriteSheet.load("Spritesheets/Mario/Mario_final-Sheet.png");
@@ -117,12 +128,16 @@ namespace Script {
         switch (animationName) {
           case "stand":
             console.log("stand!!");
+            return;
           case "run":
             console.log("run!!");
+            return;
           case "jump":
             console.log("jump!!");
+            return;
           case "die":
             console.log("dead :(");
+            return;
         }
     }
   }
