@@ -96,22 +96,21 @@ namespace Script {
     if(_event.code == ƒ.KEYBOARD_CODE.A){
       if (keyFirstPressed == true) {
         changeAnimation("mario", "run", marioSpriteNode);
+        horizontalPlayerMovement = -0.5;
+        turnAround(marioSpriteNode, 0);
+        console.log("left");
         keyFirstPressed = false;
       }
-      horizontalPlayerMovement = -0.5;
-      turnAround(marioSpriteNode, 0);
-      console.log("left");
     }
 
     if(_event.code == ƒ.KEYBOARD_CODE.D){
       if (keyFirstPressed == true) {
         changeAnimation("mario", "run", marioSpriteNode);
         keyFirstPressed = false;
+        horizontalPlayerMovement = 0.5;
+        turnAround(marioSpriteNode, 1);
+        console.log("right");
       }
-
-      horizontalPlayerMovement = 0.5;
-      turnAround(marioSpriteNode, 1);
-      console.log("right");
     }
   }
   
