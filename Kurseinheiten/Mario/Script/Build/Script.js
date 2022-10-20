@@ -45,7 +45,9 @@ var Script;
     // Define marioSpriteNode from FUDGE
     let marioSpriteNode;
     let mario;
-    let horizontalPlayerMovement = 0;
+    let marioSpeed = 5.0;
+    let xPlayerMovement = 0;
+    let xPlayerMovementCurrent;
     // should not loop, but will only have one frame so it doesnt show a difference visually if one frame loops
     let marioStandAnimation;
     // should loop, so currently fine
@@ -105,7 +107,7 @@ var Script;
         if (_event.code != ƒ.KEYBOARD_CODE.A && _event.code != ƒ.KEYBOARD_CODE.D)
             return;
         if (_event.type == "keyup") {
-            horizontalPlayerMovement = 0;
+            xPlayerMovement = 0;
             changeAnimation("mario", "stand", marioSpriteNode);
             keyFirstPressed = true;
             return;
@@ -113,11 +115,11 @@ var Script;
         if (_event.code == ƒ.KEYBOARD_CODE.A) {
             if (keyFirstPressed == true) {
                 changeAnimation("mario", "run", marioSpriteNode);
+                xPlayerMovement = -xPlayerMovementCurrent;
+                turnAround(marioSpriteNode, 0);
+                console.log("left");
                 keyFirstPressed = false;
             }
-            horizontalPlayerMovement = -0.5;
-            turnAround(marioSpriteNode, 0);
-            console.log("left");
         }
         if (_event.code == ƒ.KEYBOARD_CODE.D) {
             if (keyFirstPressed == true) {
@@ -131,9 +133,13 @@ var Script;
     }
     function update(_event) {
         // ƒ.Physics.simulate();  // if physics is included and used
+        //determine amount to walk
+        //is around 80
+        //console.log(ƒ.Loop.timeFrameGame);
+        xPlayerMovementCurrent = ƒ.Loop.timeFrameGame / 1000 * marioSpeed;
         viewport.draw();
         ƒ.AudioManager.default.update();
-        mario.getParent().mtxLocal.translateX(horizontalPlayerMovement);
+        mario.getParent().mtxLocal.translateX(xPlayerMovement);
     }
     let currentPlayerOrientation = 1;
     // 0 is left, 1 is right
@@ -150,20 +156,20 @@ var Script;
                 switch (animationName) {
                     case "stand":
                         console.log("stand!!");
-                        marioSpriteNode.setAnimation(marioStandAnimation);
+                        nodeToAnimate.setAnimation(marioStandAnimation);
                         return;
                     case "run":
                         console.log("run!!");
-                        marioSpriteNode.setAnimation(marioRunAnimation);
+                        nodeToAnimate.setAnimation(marioRunAnimation);
                         return;
                     case "jump":
                         console.log("jump!!");
-                        marioSpriteNode.setAnimation(marioJumpAnimation);
+                        nodeToAnimate.setAnimation(marioJumpAnimation);
                         //marioSpriteNode.showFrame
                         return;
                     case "die":
                         console.log("dead :(");
-                        marioSpriteNode.setAnimation(marioDieAnimation);
+                        nodeToAnimate.setAnimation(marioDieAnimation);
                         return;
                 }
         }

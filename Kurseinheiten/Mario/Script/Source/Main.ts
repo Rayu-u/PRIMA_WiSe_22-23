@@ -8,8 +8,10 @@ namespace Script {
   // Define marioSpriteNode from FUDGE
   let marioSpriteNode: ƒAid.NodeSprite;
   let mario: ƒ.Node;
+  let marioSpeed: number = 5.0;
 
-  let horizontalPlayerMovement: number = 0;
+  let xPlayerMovement: number = 0;
+  let xPlayerMovementCurrent: number;
 
   // should not loop, but will only have one frame so it doesnt show a difference visually if one frame loops
   let marioStandAnimation: ƒAid.SpriteSheetAnimation;
@@ -52,7 +54,6 @@ namespace Script {
     marioSpriteNode.setAnimation(marioStandAnimation);
     // play animation forwards
     marioSpriteNode.setFrameDirection(1);
-
     // wohl unnötig?
     marioSpriteNode.mtxLocal.translateY(-1);
 
@@ -88,7 +89,7 @@ namespace Script {
     if (_event.code != ƒ.KEYBOARD_CODE.A && _event.code != ƒ.KEYBOARD_CODE.D) return;
     
     if (_event.type == "keyup") {
-      horizontalPlayerMovement = 0;
+      xPlayerMovement = 0;
       changeAnimation("mario", "stand", marioSpriteNode);
       keyFirstPressed = true;
       return;
@@ -96,7 +97,7 @@ namespace Script {
     if(_event.code == ƒ.KEYBOARD_CODE.A){
       if (keyFirstPressed == true) {
         changeAnimation("mario", "run", marioSpriteNode);
-        horizontalPlayerMovement = -0.5;
+        xPlayerMovement = -xPlayerMovementCurrent;
         turnAround(marioSpriteNode, 0);
         console.log("left");
         keyFirstPressed = false;
@@ -112,13 +113,22 @@ namespace Script {
         console.log("right");
       }
     }
+
+    
   }
   
   function update(_event: Event): void {
     // ƒ.Physics.simulate();  // if physics is included and used
+
+    //determine amount to walk
+    //is around 80
+    //console.log(ƒ.Loop.timeFrameGame);
+   
+    xPlayerMovementCurrent = ƒ.Loop.timeFrameGame/1000 * marioSpeed;
+
     viewport.draw();
     ƒ.AudioManager.default.update();
-    mario.getParent().mtxLocal.translateX(horizontalPlayerMovement);
+    mario.getParent().mtxLocal.translateX(xPlayerMovement);
   }
 
   let currentPlayerOrientation: number = 1;
@@ -131,26 +141,26 @@ namespace Script {
     currentPlayerOrientation = orientation;
   }
 
-  function changeAnimation(nameOfAnimatable: string, animationName: string, nodeToAnimate: ƒ.Node): void {
+  function changeAnimation(nameOfAnimatable: string, animationName: string, nodeToAnimate: ƒAid.NodeSprite): void {
     switch (nameOfAnimatable) {
       case "mario":
         switch (animationName) {
           case "stand":
             console.log("stand!!");
-            marioSpriteNode.setAnimation(marioStandAnimation);
+            nodeToAnimate.setAnimation(marioStandAnimation);
             return;
           case "run":
             console.log("run!!");
-            marioSpriteNode.setAnimation(marioRunAnimation);
+            nodeToAnimate.setAnimation(marioRunAnimation);
             return;
           case "jump":
             console.log("jump!!");
-            marioSpriteNode.setAnimation(marioJumpAnimation);
+            nodeToAnimate.setAnimation(marioJumpAnimation);
             //marioSpriteNode.showFrame
             return;
           case "die":
             console.log("dead :(");
-            marioSpriteNode.setAnimation(marioDieAnimation);
+            nodeToAnimate.setAnimation(marioDieAnimation);
             return;
         }
     }
