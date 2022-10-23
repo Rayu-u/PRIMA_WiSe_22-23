@@ -1,0 +1,45 @@
+{
+  "Graph|2022-10-23T15:53:04.511Z|77737": {
+    "ƒ.Graph": {
+      "name": "ScriptTest",
+      "active": true,
+      "components": {},
+      "children": [
+        {
+          "ƒ.Node": {
+            "name": "Thing",
+            "active": true,
+            "components": {
+              "ComponentTransform": [
+                {
+                  "ƒ.ComponentTransform": {
+                    "local": {
+                      "translation": "[0, 0, 0]",
+                      "rotation": "[0, 0, 0]",
+                      "scaling": "[1, 1, 1]"
+                    },
+                    "Component": {
+                      "active": true
+                    }
+                  }
+                }
+              ],
+              "TestComponent": [
+                {
+                  "Script.TestComponent": {
+                    "active": true,
+                    "message": "CustomComponentScript added to ",
+                    "variable": "5"
+                  }
+                }
+              ]
+            },
+            "children": []
+          }
+        }
+      ],
+      "idResource": "Graph|2022-10-23T15:53:04.511Z|77737",
+      "type": "Graph"
+    }
+  }
+}
