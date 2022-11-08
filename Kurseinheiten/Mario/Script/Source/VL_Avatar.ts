@@ -1,6 +1,7 @@
 namespace Script {
   import ƒ = FudgeCore;
   import ƒAid = FudgeAid;
+
   export class Avatar extends ƒAid.NodeSprite{
 
     // should not loop, but will only have one frame so it doesnt show a difference visually if one frame loops
@@ -20,19 +21,15 @@ namespace Script {
       //Super constructor muss gefüllt werden. Mit dem NodeNamen.
       super("Avatar");
 
-      this.addComponent(new ƒ.ComponentTransform());
-      this.setAnimation(this.marioWalkAnimation);
-      this.framerate = 20;
-      this.initAnimations();
+      this.addComponent(new ƒ.ComponentTransform(new ƒ.Matrix4x4()));
+      this.framerate = 12;
+      this.setFrameDirection(1);
+      this.mtxLocal.translateY(-1)
     }
 
-    private async initAnimations(): Promise<void> {
-      // load spritesheet from folder and add a "coat" to it.
-      let marioSpriteSheet: ƒ.TextureImage = new ƒ.TextureImage();
-      await marioSpriteSheet.load("Spritesheets/Mario/Mario_final-Sheet.png");
+    initAnimations(marioSpriteSheet: ƒ.TextureImage): void {
       let coat: ƒ.CoatTextured = new ƒ.CoatTextured(undefined, marioSpriteSheet);
 
-      
       this.marioStandAnimation = new ƒAid.SpriteSheetAnimation("Mario_Stand", coat);
       this.marioStandAnimation.generateByGrid(ƒ.Rectangle.GET(0, 0, 40, 56), 1, 40, ƒ.ORIGIN2D.BOTTOMCENTER, ƒ.Vector2.X(40));
       
@@ -47,6 +44,11 @@ namespace Script {
       
       this.marioDieAnimation = new ƒAid.SpriteSheetAnimation("Mario_Die", coat);
       this.marioDieAnimation.generateByGrid(ƒ.Rectangle.GET(0, 56*3, 40, 56), 5, 40, ƒ.ORIGIN2D.BOTTOMCENTER, ƒ.Vector2.X(40));
-  }
+      this.setInitAnimation();
+    }
+
+    private setInitAnimation(): void {
+      this.setAnimation(this.marioStandAnimation);
+    }
   }
 }
