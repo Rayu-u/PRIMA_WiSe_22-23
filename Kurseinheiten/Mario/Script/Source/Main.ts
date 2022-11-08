@@ -5,6 +5,11 @@ namespace Script {
 
   let viewport: ƒ.Viewport;
 
+  //current prblem: the shift adding makes the question of how general inputs are handled
+  //in my code problematic. Keydown being standing still is not specific enough anymore 
+  // since mario shouldnt stand if shift is being stopped. that should just switch
+  // to standard running. Wonder how to do that well.
+
   // Define marioSpriteNode from FUDGE
   let marioSpriteNode: ƒAid.NodeSprite;
   let mario: ƒ.Node;
@@ -13,8 +18,16 @@ namespace Script {
   let xPlayerMovement: number = 0;
   let xPlayerMovementCurrent: number;
 
+  let yPlayerAcceleration: number = 2;
+
+  //27.10.2022
+  let cmpAudio: ƒ.ComponentAudio;
+  let audioTest: ƒ.Audio;
+
   // should not loop, but will only have one frame so it doesnt show a difference visually if one frame loops
   let marioStandAnimation: ƒAid.SpriteSheetAnimation;
+  // should loop, so currently fine
+  let marioWalkAnimation: ƒAid.SpriteSheetAnimation;
   // should loop, so currently fine
   let marioRunAnimation: ƒAid.SpriteSheetAnimation;
   // TODO: Should match Jumpduration and not loop. Jump is a difficult event
@@ -28,6 +41,18 @@ namespace Script {
     // _event.detail IST der viewport. deshalb können wir das so zuweisen
     viewport = _event.detail;
 
+    audioTest = new ƒ.Audio("Kurseinheiten\Mario\Sound\SeResourceStd2nd_000006E2_Yahoo.wav");
+    cmpAudio = new ƒ.ComponentAudio(audioTest, false, false);
+    cmpAudio.connect(true);
+    cmpAudio.volume = 30;
+
+    ///VORLESUNG!!!!
+
+    let avatar: ƒAid.NodeSprite = new Avatar()
+
+    ///VORLESUNG!!!!
+
+
     let graph: ƒ.Node = viewport.getBranch();
     mario = graph.getChildrenByName("MarioTransform")[0].getChildrenByName("Mario")[0];
 
@@ -35,9 +60,11 @@ namespace Script {
     console.log("mario" + mario.name);
     
     await initMario()
+    
+    cmpAudio.play(true);
 
-    document.addEventListener("keyup", onKey);
-    document.addEventListener("keydown", onKey);
+    //document.addEventListener("keyup", onKey);
+    //document.addEventListener("keydown", onKey);
 
     ƒ.Loop.addEventListener(ƒ.EVENT.LOOP_FRAME, update);
     // ƒ.Loop.start();  // start the game loop to continously draw the viewport, update the audiosystem and drive the physics i/a
@@ -73,8 +100,11 @@ namespace Script {
     marioStandAnimation = new ƒAid.SpriteSheetAnimation("Mario_Stand", coat);
     marioStandAnimation.generateByGrid(ƒ.Rectangle.GET(0, 0, 40, 56), 1, 40, ƒ.ORIGIN2D.BOTTOMCENTER, ƒ.Vector2.X(40));
     
+    marioWalkAnimation = new ƒAid.SpriteSheetAnimation("Mario_Run", coat);
+    marioWalkAnimation.generateByGrid(ƒ.Rectangle.GET(0, 56, 40, 56), 12, 40, ƒ.ORIGIN2D.BOTTOMCENTER, ƒ.Vector2.X(40));
+    
     marioRunAnimation = new ƒAid.SpriteSheetAnimation("Mario_Run", coat);
-    marioRunAnimation.generateByGrid(ƒ.Rectangle.GET(0, 56, 40, 56), 12, 40, ƒ.ORIGIN2D.BOTTOMCENTER, ƒ.Vector2.X(40));
+    marioRunAnimation.generateByGrid(ƒ.Rectangle.GET(0, 56, 40, 56), 6, 40, ƒ.ORIGIN2D.BOTTOMCENTER, ƒ.Vector2.X(80));
     
     marioJumpAnimation = new ƒAid.SpriteSheetAnimation("Mario_Jump", coat);
     marioJumpAnimation.generateByGrid(ƒ.Rectangle.GET(0, 56*2, 40, 56), 10, 40, ƒ.ORIGIN2D.BOTTOMCENTER, ƒ.Vector2.X(40));
@@ -83,39 +113,73 @@ namespace Script {
     marioDieAnimation.generateByGrid(ƒ.Rectangle.GET(0, 56*3, 40, 56), 5, 40, ƒ.ORIGIN2D.BOTTOMCENTER, ƒ.Vector2.X(40));
   }
 
-  let keyFirstPressed: boolean = true;
+  let mainKeyFirstPressed: boolean = true;
+  let effectKeyFirstPressed: boolean = true;
+
+  let currentAnimationName: String;
+  let animationNameBeforeSprint: String;
 
   function onKey(_event: KeyboardEvent): void {
-    if (_event.code != ƒ.KEYBOARD_CODE.A && _event.code != ƒ.KEYBOARD_CODE.D) return;
+    if (_event.code != ƒ.KEYBOARD_CODE.A && _event.code != ƒ.KEYBOARD_CODE.D && _event.code != ƒ.KEYBOARD_CODE.SHIFT_LEFT) return;
+
+    // new strategy: Send all keyinputs elsewhere coded differently
+    // PlayerControl
     
-    if (_event.type == "keyup") {
+    if (_event.type == "keyup" && (_event.code == ƒ.KEYBOARD_CODE.D || _event.code == ƒ.KEYBOARD_CODE.A)) {
+      console.log("key up");
+      
       xPlayerMovement = 0;
       changeAnimation("mario", "stand", marioSpriteNode);
-      keyFirstPressed = true;
+      mainKeyFirstPressed = true;
       return;
     } 
+
     if(_event.code == ƒ.KEYBOARD_CODE.A){
-      if (keyFirstPressed == true) {
-        changeAnimation("mario", "run", marioSpriteNode);
+      if (mainKeyFirstPressed == true) {
+        changeAnimation("mario", "walk", marioSpriteNode);
         xPlayerMovement = -xPlayerMovementCurrent;
         turnAround(marioSpriteNode, 0);
         console.log("left");
-        keyFirstPressed = false;
+        mainKeyFirstPressed = false;
       }
     }
 
     if(_event.code == ƒ.KEYBOARD_CODE.D){
-      if (keyFirstPressed == true) {
-        changeAnimation("mario", "run", marioSpriteNode);
-        keyFirstPressed = false;
-        horizontalPlayerMovement = 0.5;
+      if (mainKeyFirstPressed == true) {
+        changeAnimation("mario", "walk", marioSpriteNode);
+        xPlayerMovement = xPlayerMovementCurrent;
         turnAround(marioSpriteNode, 1);
         console.log("right");
+        mainKeyFirstPressed = false;
       }
     }
-
     
+    let speedMultiplier: number = 2;
+    if(_event.code == ƒ.KEYBOARD_CODE.SHIFT_LEFT) {
+      if (effectKeyFirstPressed == true) {
+        multiplyCurrentSpeedBy(speedMultiplier);
+        animationNameBeforeSprint = currentAnimationName;
+        changeAnimation("mario", "run", marioSpriteNode);
+        effectKeyFirstPressed = false;
+      }
+
+      if (_event.type == "keyup") {
+        multiplyCurrentSpeedBy(1/speedMultiplier);
+        changeAnimation("mario", animationNameBeforeSprint, marioSpriteNode);
+        effectKeyFirstPressed = true;
+      }
+      return
+    }
+
+  function multiplyCurrentSpeedBy(multiplier: number) {
+    xPlayerMovement *= multiplier;
   }
+
+  }
+  //ySpeed: number = 0
+  //Gravity = 0.05
+
+  //Update deltati
   
   function update(_event: Event): void {
     // ƒ.Physics.simulate();  // if physics is included and used
@@ -125,6 +189,9 @@ namespace Script {
     //console.log(ƒ.Loop.timeFrameGame);
    
     xPlayerMovementCurrent = ƒ.Loop.timeFrameGame/1000 * marioSpeed;
+
+    yPlayerAcceleration = ƒ.Loop.timeFrameGame/(1000*1000) + marioSpeed;
+    // a*t + v
 
     viewport.draw();
     ƒ.AudioManager.default.update();
@@ -141,26 +208,34 @@ namespace Script {
     currentPlayerOrientation = orientation;
   }
 
-  function changeAnimation(nameOfAnimatable: string, animationName: string, nodeToAnimate: ƒAid.NodeSprite): void {
+  function changeAnimation(nameOfAnimatable: String, animationName: String, nodeToAnimate: ƒAid.NodeSprite): void {
     switch (nameOfAnimatable) {
       case "mario":
         switch (animationName) {
           case "stand":
             console.log("stand!!");
             nodeToAnimate.setAnimation(marioStandAnimation);
+            currentAnimationName = "stand";
+            return;
+          case "walk":
+            console.log("walk!!");
+            nodeToAnimate.setAnimation(marioWalkAnimation);
+            currentAnimationName = "walk";
             return;
           case "run":
-            console.log("run!!");
+            console.log("walk!!");
             nodeToAnimate.setAnimation(marioRunAnimation);
+            currentAnimationName = "run";
             return;
           case "jump":
             console.log("jump!!");
             nodeToAnimate.setAnimation(marioJumpAnimation);
-            //marioSpriteNode.showFrame
+            currentAnimationName = "jump";
             return;
           case "die":
             console.log("dead :(");
             nodeToAnimate.setAnimation(marioDieAnimation);
+            currentAnimationName = "die";
             return;
         }
     }
