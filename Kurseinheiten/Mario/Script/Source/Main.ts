@@ -15,6 +15,7 @@ namespace Script {
   //let marioSpriteNode: ƒAid.NodeSprite;
 
   let marioAvatar: Avatar;
+  let currentInputState: InputState;
 
   //27.10.2022
   let cmpAudio: ƒ.ComponentAudio;
@@ -121,19 +122,23 @@ namespace Script {
     let rightKeyCode: ƒ.KEYBOARD_CODE[] = [ƒ.KEYBOARD_CODE.D, ƒ.KEYBOARD_CODE.ARROW_RIGHT]
     let shiftKeyCode: ƒ.KEYBOARD_CODE[] = [ƒ.KEYBOARD_CODE.SHIFT_LEFT, ƒ.KEYBOARD_CODE.SHIFT_RIGHT]
 
-    let currentInputState: InputState = {
+    //let oldInputState: InputState = currentInputState;
+    currentInputState = {
       isLeftKeyPressed: ƒ.Keyboard.isPressedOne(leftKeyCode),
       isRightKeyPressed: ƒ.Keyboard.isPressedOne(rightKeyCode),
       isShiftKeyPressed: ƒ.Keyboard.isPressedOne(shiftKeyCode)
     }
     
+    //if (oldInputState != currentInputState) {
+      // Question Should the internal state update() even be called even if the state didnt change?
+    //}
     // ƒ.Physics.simulate();  // if physics is included and used
 
     viewport.draw();
     ƒ.AudioManager.default.update();
     
     let deltaTime: number = ƒ.Loop.timeFrameGame/1000;
-    marioAvatar.update(deltaTime, currentInputState)
+    marioAvatar.update(deltaTime, currentInputState);
   }
 
   let currentPlayerOrientation: number = 1;

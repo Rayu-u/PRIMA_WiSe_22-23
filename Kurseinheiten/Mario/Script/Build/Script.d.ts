@@ -2,15 +2,12 @@ declare namespace Script {
     import ƒ = FudgeCore;
     import ƒAid = FudgeAid;
     class Avatar extends ƒAid.NodeSprite {
-        marioStandAnimation: ƒAid.SpriteSheetAnimation;
-        marioWalkAnimation: ƒAid.SpriteSheetAnimation;
-        marioRunAnimation: ƒAid.SpriteSheetAnimation;
-        marioJumpAnimation: ƒAid.SpriteSheetAnimation;
-        marioDieAnimation: ƒAid.SpriteSheetAnimation;
         marioSpeed: number;
         xPlayerMovement: number;
         xPlayerMovementCurrent: number;
         yPlayerAcceleration: number;
+        marioStateMachine: MarioStateMachine;
+        animations: MarioAnimations;
         constructor(spritesheet: ƒ.TextureImage);
         private initMario;
         private initAnimations;
@@ -33,13 +30,6 @@ declare namespace Script {
     }
 }
 declare namespace Script {
-    interface InputState {
-        isLeftKeyPressed: boolean;
-        isRightKeyPressed: boolean;
-        isShiftKeyPressed: boolean;
-    }
-}
-declare namespace Script {
 }
 declare namespace Script {
     import ƒ = FudgeCore;
@@ -53,26 +43,48 @@ declare namespace Script {
     }
 }
 declare namespace Script {
+    enum MarioState {
+        IDLE = 0,
+        WALK = 1,
+        RUN = 2,
+        JUMP = 3,
+        DIE = 4
+    }
+    class MarioStateMachine {
+        mario: Avatar;
+        animations: MarioAnimations;
+        currentState: MarioState;
+        currentOrientation: String;
+        constructor(marioInstance: Avatar, animations: MarioAnimations, initState: String);
+        update(inputState: InputState): void;
+        changeState(nextState: String): void;
+        setOrientation(orientation: string): void;
+    }
+}
+declare namespace Script {
     interface State {
-        update(event: Event): void;
-        input(event: KeyboardEvent): void;
+        update(inputState: InputState): State;
     }
     class IdleState implements State {
-        update(event: Event): void;
-        input(event: KeyboardEvent): void;
+        update(inputState: InputState): State;
     }
     class WalkState implements State {
-        update(event: Event): void;
-        input(event: KeyboardEvent): void;
+        update(inputState: InputState): State;
     }
     class RunState implements State {
-        update(event: Event): void;
-        input(event: KeyboardEvent): void;
+        update(inputState: InputState): State;
     }
     class JumpState implements State {
-        update(event: Event): void;
-        input(event: KeyboardEvent): void;
+        update(inputState: InputState): State;
     }
+    class DeathState implements State {
+        update(inputState: InputState): State;
+    }
+    let idleState: IdleState;
+    let walkState: WalkState;
+    let runState: RunState;
+    let jumpState: JumpState;
+    let deathState: JumpState;
 }
 declare namespace Script {
     import ƒAid = FudgeAid;
@@ -107,4 +119,18 @@ declare namespace Script {
         private hndKeyInput;
     }
     export {};
+}
+declare namespace Script {
+    interface InputState {
+        isLeftKeyPressed: boolean;
+        isRightKeyPressed: boolean;
+        isShiftKeyPressed: boolean;
+    }
+    interface MarioAnimations {
+        idle: ƒAid.SpriteSheetAnimation;
+        walk: ƒAid.SpriteSheetAnimation;
+        run: ƒAid.SpriteSheetAnimation;
+        jump: ƒAid.SpriteSheetAnimation;
+        die: ƒAid.SpriteSheetAnimation;
+    }
 }

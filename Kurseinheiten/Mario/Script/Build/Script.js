@@ -3,24 +3,22 @@ var Script;
 (function (Script) {
     var ƒ = FudgeCore;
     var ƒAid = FudgeAid;
+    //prepares the animations, which will be controlled through state handler class
     class Avatar extends ƒAid.NodeSprite {
-        marioStandAnimation;
-        marioWalkAnimation;
-        marioRunAnimation;
-        marioJumpAnimation;
-        marioDieAnimation;
         marioSpeed = 5.0;
         //currently responsible for player movement
         xPlayerMovement = 0;
         xPlayerMovementCurrent;
         yPlayerAcceleration = 2;
+        marioStateMachine;
+        animations;
         constructor(spritesheet) {
             super("Avatar");
             this.initMario(spritesheet);
         }
         initMario(spritesheet) {
             this.initAnimations(spritesheet);
-            this.setAnimation(this.marioStandAnimation);
+            this.marioStateMachine = new Script.MarioStateMachine(this, this.animations, "idle");
             this.addComponent(new ƒ.ComponentTransform(new ƒ.Matrix4x4()));
             this.setFrameDirection(1);
             this.mtxLocal.translateY(-1);
@@ -28,19 +26,27 @@ var Script;
         initAnimations(spritesheet) {
             // add a "coat" to spritesheet
             let coat = new ƒ.CoatTextured(undefined, spritesheet);
-            this.marioStandAnimation = new ƒAid.SpriteSheetAnimation("Mario_Stand", coat);
-            this.marioStandAnimation.generateByGrid(ƒ.Rectangle.GET(0, 0, 40, 56), 1, 40, ƒ.ORIGIN2D.BOTTOMCENTER, ƒ.Vector2.X(40));
-            this.marioWalkAnimation = new ƒAid.SpriteSheetAnimation("Mario_Run", coat);
-            this.marioWalkAnimation.generateByGrid(ƒ.Rectangle.GET(0, 56, 40, 56), 12, 40, ƒ.ORIGIN2D.BOTTOMCENTER, ƒ.Vector2.X(40));
-            this.marioRunAnimation = new ƒAid.SpriteSheetAnimation("Mario_Run", coat);
-            this.marioRunAnimation.generateByGrid(ƒ.Rectangle.GET(0, 56, 40, 56), 6, 40, ƒ.ORIGIN2D.BOTTOMCENTER, ƒ.Vector2.X(80));
-            this.marioJumpAnimation = new ƒAid.SpriteSheetAnimation("Mario_Jump", coat);
-            this.marioJumpAnimation.generateByGrid(ƒ.Rectangle.GET(0, 56 * 2, 40, 56), 10, 40, ƒ.ORIGIN2D.BOTTOMCENTER, ƒ.Vector2.X(40));
-            this.marioDieAnimation = new ƒAid.SpriteSheetAnimation("Mario_Die", coat);
-            this.marioDieAnimation.generateByGrid(ƒ.Rectangle.GET(0, 56 * 3, 40, 56), 5, 40, ƒ.ORIGIN2D.BOTTOMCENTER, ƒ.Vector2.X(40));
+            let marioIdleAnimation = new ƒAid.SpriteSheetAnimation("Mario_Stand", coat);
+            marioIdleAnimation.generateByGrid(ƒ.Rectangle.GET(0, 0, 40, 56), 1, 40, ƒ.ORIGIN2D.BOTTOMCENTER, ƒ.Vector2.X(40));
+            let marioWalkAnimation = new ƒAid.SpriteSheetAnimation("Mario_Run", coat);
+            marioWalkAnimation.generateByGrid(ƒ.Rectangle.GET(0, 56, 40, 56), 12, 40, ƒ.ORIGIN2D.BOTTOMCENTER, ƒ.Vector2.X(40));
+            let marioRunAnimation = new ƒAid.SpriteSheetAnimation("Mario_Run", coat);
+            marioRunAnimation.generateByGrid(ƒ.Rectangle.GET(0, 56, 40, 56), 6, 40, ƒ.ORIGIN2D.BOTTOMCENTER, ƒ.Vector2.X(80));
+            let marioJumpAnimation = new ƒAid.SpriteSheetAnimation("Mario_Jump", coat);
+            marioJumpAnimation.generateByGrid(ƒ.Rectangle.GET(0, 56 * 2, 40, 56), 10, 40, ƒ.ORIGIN2D.BOTTOMCENTER, ƒ.Vector2.X(40));
+            let marioDieAnimation = new ƒAid.SpriteSheetAnimation("Mario_Die", coat);
+            marioDieAnimation.generateByGrid(ƒ.Rectangle.GET(0, 56 * 3, 40, 56), 5, 40, ƒ.ORIGIN2D.BOTTOMCENTER, ƒ.Vector2.X(40));
+            this.animations = {
+                idle: marioIdleAnimation,
+                walk: marioWalkAnimation,
+                run: marioRunAnimation,
+                jump: marioJumpAnimation,
+                die: marioDieAnimation
+            };
             this.framerate = 12;
         }
         update(deltaTime, inputState) {
+            this.marioStateMachine.update(inputState);
             //determine amount to walk
             //is around 80
             //console.log(ƒ.Loop.timeFrameGame);
@@ -141,6 +147,7 @@ var Script;
     // Define marioSpriteNode from FUDGE
     //let marioSpriteNode: ƒAid.NodeSprite;
     let marioAvatar;
+    let currentInputState;
     //27.10.2022
     let cmpAudio;
     let audioTest;
@@ -230,11 +237,15 @@ var Script;
         let leftKeyCode = [ƒ.KEYBOARD_CODE.A, ƒ.KEYBOARD_CODE.ARROW_LEFT];
         let rightKeyCode = [ƒ.KEYBOARD_CODE.D, ƒ.KEYBOARD_CODE.ARROW_RIGHT];
         let shiftKeyCode = [ƒ.KEYBOARD_CODE.SHIFT_LEFT, ƒ.KEYBOARD_CODE.SHIFT_RIGHT];
-        let currentInputState = {
+        //let oldInputState: InputState = currentInputState;
+        currentInputState = {
             isLeftKeyPressed: ƒ.Keyboard.isPressedOne(leftKeyCode),
             isRightKeyPressed: ƒ.Keyboard.isPressedOne(rightKeyCode),
             isShiftKeyPressed: ƒ.Keyboard.isPressedOne(shiftKeyCode)
         };
+        //if (oldInputState != currentInputState) {
+        // Question Should the internal state update() even be called even if the state didnt change?
+        //}
         // ƒ.Physics.simulate();  // if physics is included and used
         viewport.draw();
         ƒ.AudioManager.default.update();
@@ -347,36 +358,156 @@ var Script;
 })(Script || (Script = {}));
 var Script;
 (function (Script) {
-    class IdleState {
-        update(event) {
-            console.log("damn");
+    let MarioState;
+    (function (MarioState) {
+        MarioState[MarioState["IDLE"] = 0] = "IDLE";
+        MarioState[MarioState["WALK"] = 1] = "WALK";
+        MarioState[MarioState["RUN"] = 2] = "RUN";
+        MarioState[MarioState["JUMP"] = 3] = "JUMP";
+        MarioState[MarioState["DIE"] = 4] = "DIE";
+    })(MarioState = Script.MarioState || (Script.MarioState = {}));
+    class MarioStateMachine {
+        mario;
+        animations;
+        currentState;
+        currentOrientation = "right";
+        constructor(marioInstance, animations, initState) {
+            this.mario = marioInstance;
+            this.animations = animations;
+            this.changeState(initState);
         }
-        input(event) {
-            console.log("damn");
+        update(inputState) {
+            if (inputState.isLeftKeyPressed && inputState.isRightKeyPressed) {
+                return;
+            }
+            ;
+            if (inputState.isLeftKeyPressed) {
+                this.setOrientation("left");
+            }
+            ;
+            if (inputState.isRightKeyPressed) {
+                this.setOrientation("right");
+            }
+            ;
+            switch (this.currentState) {
+                case MarioState.IDLE:
+                    if (inputState.isLeftKeyPressed || inputState.isRightKeyPressed) {
+                        if (inputState.isShiftKeyPressed) {
+                            this.changeState("run");
+                            break;
+                        }
+                        ;
+                        this.changeState("walk");
+                    }
+                    break;
+                case MarioState.WALK:
+                    if (inputState.isShiftKeyPressed) {
+                        this.changeState("run");
+                    }
+                    if (!(inputState.isLeftKeyPressed || inputState.isRightKeyPressed)) {
+                        this.changeState("idle");
+                    }
+                    break;
+                case MarioState.RUN:
+                    if (!(inputState.isLeftKeyPressed || inputState.isRightKeyPressed)) {
+                        this.changeState("idle");
+                    }
+                    if (!inputState.isShiftKeyPressed) {
+                        this.changeState("walk");
+                    }
+                    break;
+                case MarioState.JUMP:
+                    break;
+                case MarioState.DIE:
+                    break;
+            }
+        }
+        changeState(nextState) {
+            switch (nextState) {
+                case "idle":
+                    this.mario.setAnimation(this.animations.idle);
+                    this.currentState = MarioState.IDLE;
+                    break;
+                case "walk":
+                    this.mario.setAnimation(this.animations.walk);
+                    this.currentState = MarioState.WALK;
+                    break;
+                case "run":
+                    this.mario.setAnimation(this.animations.run);
+                    this.currentState = MarioState.RUN;
+                    break;
+                case "jump":
+                    this.mario.setAnimation(this.animations.jump);
+                    this.currentState = MarioState.JUMP;
+                    break;
+                case "die":
+                    this.mario.setAnimation(this.animations.die);
+                    this.currentState = MarioState.DIE;
+                    break;
+            }
+        }
+        setOrientation(orientation) {
+            if (this.currentOrientation == orientation) {
+                return;
+            }
+            ;
+            let orientationFactor;
+            switch (orientation) {
+                case "right":
+                    orientationFactor = 0;
+                    break;
+                case "left":
+                    orientationFactor = 1;
+                    break;
+            }
+            let transformComponent = this.mario.getComponent(ƒ.ComponentTransform);
+            transformComponent.mtxLocal.rotation = ƒ.Vector3.Y(orientationFactor * 180);
+            console.log(transformComponent.mtxLocal.rotation.y);
+            this.currentOrientation = orientation;
+        }
+    }
+    Script.MarioStateMachine = MarioStateMachine;
+})(Script || (Script = {}));
+var Script;
+(function (Script) {
+    class IdleState {
+        update(inputState) {
+            if (inputState.isLeftKeyPressed || inputState.isRightKeyPressed) {
+                return new WalkState();
+            }
+            return this;
         }
     }
     Script.IdleState = IdleState;
     class WalkState {
-        update(event) {
-        }
-        input(event) {
+        update(inputState) {
+            return this;
         }
     }
     Script.WalkState = WalkState;
     class RunState {
-        update(event) {
-        }
-        input(event) {
+        update(inputState) {
+            return this;
         }
     }
     Script.RunState = RunState;
     class JumpState {
-        update(event) {
-        }
-        input(event) {
+        update(inputState) {
+            return this;
         }
     }
     Script.JumpState = JumpState;
+    class DeathState {
+        update(inputState) {
+            return this;
+        }
+    }
+    Script.DeathState = DeathState;
+    Script.idleState = new IdleState();
+    Script.walkState = new WalkState();
+    Script.runState = new RunState();
+    Script.jumpState = new JumpState();
+    Script.deathState = new DeathState();
 })(Script || (Script = {}));
 var Script;
 (function (Script) {

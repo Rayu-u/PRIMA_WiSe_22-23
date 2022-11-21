@@ -192,69 +192,6 @@
                   },
                   "children": []
                 }
-              },
-              {
-                "ƒ.Node": {
-                  "name": "MarioWithState",
-                  "active": false,
-                  "components": {
-                    "ComponentMesh": [
-                      {
-                        "ƒ.ComponentMesh": {
-                          "idMesh": "MeshQuad|2022-10-07T17:42:19.537Z|20223",
-                          "pivot": {
-                            "translation": "[0, 0, 0]",
-                            "rotation": "[0, 0, 0]",
-                            "scaling": "[1, 2, 1]"
-                          },
-                          "Component": {
-                            "active": true
-                          }
-                        }
-                      }
-                    ],
-                    "ComponentMaterial": [
-                      {
-                        "ƒ.ComponentMaterial": {
-                          "sortForAlpha": false,
-                          "clrPrimary": "[1, 1, 1, 1]",
-                          "clrSecondary": "[1, 1, 1, 1]",
-                          "pivot": {
-                            "translation": "[0, 0.10000000149011612]",
-                            "rotation": 0,
-                            "scaling": "[0.07000000029802322, 0.40000006556510925]"
-                          },
-                          "Component": {
-                            "active": true
-                          },
-                          "idMaterial": "Material|2022-10-11T14:48:41.363Z|69339"
-                        }
-                      }
-                    ],
-                    "ComponentTransform": [
-                      {
-                        "ƒ.ComponentTransform": {
-                          "local": {
-                            "translation": "[0, 1.5, 0]",
-                            "rotation": "[0, 0, 0]",
-                            "scaling": "[1.5, 2, 1]"
-                          },
-                          "Component": {
-                            "active": true
-                          }
-                        }
-                      }
-                    ],
-                    "StateMachineMario": [
-                      {
-                        "Script.StateMachineMario": {
-                          "active": true
-                        }
-                      }
-                    ]
-                  },
-                  "children": []
-                }
               }
             ]
           }
