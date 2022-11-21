@@ -34,12 +34,15 @@ declare namespace Script {
         DIE = 4
     }
     class MarioStateMachine {
-        mario: Avatar;
         animations: MarioAnimations;
+        mario: Avatar;
+        marioMtxLocal: ƒ.Matrix4x4;
+        readonly xSpeed: number;
+        readonly xRunSpeed: number;
         currentState: MarioState;
         currentOrientation: String;
         constructor(marioInstance: Avatar, animations: MarioAnimations, initState: String);
-        update(inputState: InputState): void;
+        update(inputState: InputState, deltaTime: number): void;
         changeState(nextState: String): void;
         setOrientation(orientation: string): void;
     }

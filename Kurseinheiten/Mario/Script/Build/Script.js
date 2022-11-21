@@ -18,10 +18,10 @@ var Script;
         }
         initMario(spritesheet) {
             this.initAnimations(spritesheet);
-            this.marioStateMachine = new Script.MarioStateMachine(this, this.animations, "idle");
             this.addComponent(new ƒ.ComponentTransform(new ƒ.Matrix4x4()));
             this.setFrameDirection(1);
             this.mtxLocal.translateY(-1);
+            this.marioStateMachine = new Script.MarioStateMachine(this, this.animations, "idle");
         }
         initAnimations(spritesheet) {
             // add a "coat" to spritesheet
@@ -46,7 +46,7 @@ var Script;
             this.framerate = 12;
         }
         update(deltaTime, inputState) {
-            this.marioStateMachine.update(inputState);
+            this.marioStateMachine.update(inputState, deltaTime);
             //determine amount to walk
             //is around 80
             //console.log(ƒ.Loop.timeFrameGame);
@@ -280,16 +280,20 @@ var Script;
         MarioState[MarioState["DIE"] = 4] = "DIE";
     })(MarioState = Script.MarioState || (Script.MarioState = {}));
     class MarioStateMachine {
-        mario;
         animations;
+        mario;
+        marioMtxLocal;
+        xSpeed = 1.5;
+        xRunSpeed = 3;
         currentState;
         currentOrientation = "right";
         constructor(marioInstance, animations, initState) {
             this.mario = marioInstance;
             this.animations = animations;
+            this.marioMtxLocal = this.mario.getComponent(ƒ.ComponentTransform).mtxLocal;
             this.changeState(initState);
         }
-        update(inputState) {
+        update(inputState, deltaTime) {
             if (inputState.isLeftKeyPressed && inputState.isRightKeyPressed) {
                 return;
             }
@@ -314,6 +318,7 @@ var Script;
                     }
                     break;
                 case MarioState.WALK:
+                    this.marioMtxLocal.translateX(this.xSpeed * deltaTime, true);
                     if (inputState.isShiftKeyPressed) {
                         this.changeState("run");
                     }
@@ -322,6 +327,7 @@ var Script;
                     }
                     break;
                 case MarioState.RUN:
+                    this.marioMtxLocal.translateX(this.xRunSpeed * deltaTime, true);
                     if (!(inputState.isLeftKeyPressed || inputState.isRightKeyPressed)) {
                         this.changeState("idle");
                     }
@@ -373,9 +379,7 @@ var Script;
                     orientationFactor = 1;
                     break;
             }
-            let transformComponent = this.mario.getComponent(ƒ.ComponentTransform);
-            transformComponent.mtxLocal.rotation = ƒ.Vector3.Y(orientationFactor * 180);
-            console.log(transformComponent.mtxLocal.rotation.y);
+            this.marioMtxLocal.rotation = ƒ.Vector3.Y(orientationFactor * 180);
             this.currentOrientation = orientation;
         }
     }

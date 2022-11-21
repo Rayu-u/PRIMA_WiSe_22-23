@@ -8,8 +8,12 @@ namespace Script {
   }
 
   export class MarioStateMachine {
-    mario: Avatar;
     animations: MarioAnimations;
+    mario: Avatar;
+    marioMtxLocal: ƒ.Matrix4x4;
+
+    readonly xSpeed: number = 1.5;
+    readonly xRunSpeed: number = 3;
     
     currentState: MarioState;
     currentOrientation: String = "right";
@@ -17,12 +21,13 @@ namespace Script {
     constructor(marioInstance: Avatar, animations: MarioAnimations, initState: String) {
       this.mario = marioInstance;
       this.animations = animations;
-
+      
+      this.marioMtxLocal = this.mario.getComponent(ƒ.ComponentTransform).mtxLocal;
       this.changeState(initState);
+      
     }
 
-
-    update(inputState: InputState): void {
+    update(inputState: InputState, deltaTime: number): void {
       if (inputState.isLeftKeyPressed && inputState.isRightKeyPressed) {return};
       if (inputState.isLeftKeyPressed) { this.setOrientation("left")};
       if (inputState.isRightKeyPressed) { this.setOrientation("right")};
@@ -37,6 +42,7 @@ namespace Script {
           }
           break;
         case MarioState.WALK:
+          this.marioMtxLocal.translateX(this.xSpeed * deltaTime, true);
           if (inputState.isShiftKeyPressed) {
             this.changeState("run");
           }
@@ -45,6 +51,7 @@ namespace Script {
           }
           break;
         case MarioState.RUN:
+          this.marioMtxLocal.translateX(this.xRunSpeed * deltaTime, true);
           if (!(inputState.isLeftKeyPressed || inputState.isRightKeyPressed)) {
             this.changeState("idle");
           }
@@ -63,7 +70,7 @@ namespace Script {
       switch (nextState) {
         case "idle":
           this.mario.setAnimation(this.animations.idle);
-          this.currentState = MarioState.IDLE;
+          this.currentState = MarioState.IDLE;          
           break;
         case "walk":
           this.mario.setAnimation(this.animations.walk);
@@ -99,9 +106,7 @@ namespace Script {
           break;
       }
 
-      let transformComponent: ƒ.ComponentTransform = this.mario.getComponent(ƒ.ComponentTransform);
-      transformComponent.mtxLocal.rotation = ƒ.Vector3.Y(orientationFactor * 180);
-      console.log(transformComponent.mtxLocal.rotation.y);
+      this.marioMtxLocal.rotation = ƒ.Vector3.Y(orientationFactor * 180);
       
       this.currentOrientation = orientation;
     }

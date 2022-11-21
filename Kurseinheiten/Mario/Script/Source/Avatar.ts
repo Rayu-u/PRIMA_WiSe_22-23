@@ -22,12 +22,12 @@ namespace Script {
 
     private initMario(spritesheet: ƒ.TextureImage): void {
       this.initAnimations(spritesheet);
-      this.marioStateMachine = new MarioStateMachine(this, this.animations, "idle");
       
       this.addComponent(new ƒ.ComponentTransform(new ƒ.Matrix4x4()));
       this.setFrameDirection(1);
       
       this.mtxLocal.translateY(-1);
+      this.marioStateMachine = new MarioStateMachine(this, this.animations, "idle");
     }
 
     private initAnimations(spritesheet: ƒ.TextureImage): void {
@@ -61,7 +61,7 @@ namespace Script {
     }
 
     public update(deltaTime: number, inputState: InputState): void {
-      this.marioStateMachine.update(inputState);
+      this.marioStateMachine.update(inputState, deltaTime);
 
       //determine amount to walk
       //is around 80
