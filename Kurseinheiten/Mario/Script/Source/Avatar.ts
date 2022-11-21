@@ -3,35 +3,37 @@ namespace Script {
   import ƒAid = FudgeAid;
   export class Avatar extends ƒAid.NodeSprite{
 
-    // should not loop, but will only have one frame so it doesnt show a difference visually if one frame loops
     marioStandAnimation: ƒAid.SpriteSheetAnimation;
-    // should not loop, but will only have one frame so it doesnt show a difference visually if one frame loopmarioStandAnimation: ƒAid.SpriteSheetAnimation;
-    // should loop, so currently fine
     marioWalkAnimation: ƒAid.SpriteSheetAnimation;
-    // should loop, so currently fine
     marioRunAnimation: ƒAid.SpriteSheetAnimation;
-    // TODO: Should match Jumpduration and not loop. Jump is a difficult event
     marioJumpAnimation: ƒAid.SpriteSheetAnimation;
-    // TODO: shouldnt loop later.
     marioDieAnimation: ƒAid.SpriteSheetAnimation;
 
+    marioSpeed: number = 5.0;
+  
+    //currently responsible for player movement
+    xPlayerMovement: number = 0;
+    xPlayerMovementCurrent: number;
 
-    public constructor() {
-      //Super constructor muss gefüllt werden. Mit dem NodeNamen.
+    yPlayerAcceleration: number = 2;
+
+    public constructor(spritesheet: ƒ.TextureImage) {
       super("Avatar");
-
-      this.addComponent(new ƒ.ComponentTransform());
-      this.setAnimation(this.marioWalkAnimation);
-      this.framerate = 20;
-      this.initAnimations();
+      this.initMario(spritesheet);      
     }
 
-    private async initAnimations(): Promise<void> {
-      // load spritesheet from folder and add a "coat" to it.
-      let marioSpriteSheet: ƒ.TextureImage = new ƒ.TextureImage();
-      await marioSpriteSheet.load("Spritesheets/Mario/Mario_final-Sheet.png");
-      let coat: ƒ.CoatTextured = new ƒ.CoatTextured(undefined, marioSpriteSheet);
+    private initMario(spritesheet: ƒ.TextureImage): void {
+      this.initAnimations(spritesheet);
+      this.setAnimation(this.marioStandAnimation);
+      this.addComponent(new ƒ.ComponentTransform(new ƒ.Matrix4x4()));
+      this.setFrameDirection(1);
+      
+      this.mtxLocal.translateY(-1);
+    }
 
+    private initAnimations(spritesheet: ƒ.TextureImage): void {
+      // add a "coat" to spritesheet
+      let coat: ƒ.CoatTextured = new ƒ.CoatTextured(undefined, spritesheet);
       
       this.marioStandAnimation = new ƒAid.SpriteSheetAnimation("Mario_Stand", coat);
       this.marioStandAnimation.generateByGrid(ƒ.Rectangle.GET(0, 0, 40, 56), 1, 40, ƒ.ORIGIN2D.BOTTOMCENTER, ƒ.Vector2.X(40));
@@ -47,6 +49,25 @@ namespace Script {
       
       this.marioDieAnimation = new ƒAid.SpriteSheetAnimation("Mario_Die", coat);
       this.marioDieAnimation.generateByGrid(ƒ.Rectangle.GET(0, 56*3, 40, 56), 5, 40, ƒ.ORIGIN2D.BOTTOMCENTER, ƒ.Vector2.X(40));
-  }
+
+      this.framerate = 12;
+    }
+
+    public update(deltaTime: number, inputState: InputState): void {
+      //determine amount to walk
+      //is around 80
+      //console.log(ƒ.Loop.timeFrameGame);
+    
+      this.xPlayerMovementCurrent = ƒ.Loop.timeFrameGame/1000 * this.marioSpeed;
+
+      this.yPlayerAcceleration = ƒ.Loop.timeFrameGame/(1000*1000) + this.marioSpeed;
+      // a*t + v
+      this.getParent().getParent().mtxLocal.translateX(this.xPlayerMovement);
+      
+      //ySpeed: number = 0
+      //Gravity = 0.05
+
+      //Update deltati
+    }
   }
 }

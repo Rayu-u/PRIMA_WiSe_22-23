@@ -32,6 +32,24 @@
                     "variable": "5"
                   }
                 }
+              ],
+              "ComponentMaterial": [
+                {
+                  "ƒ.ComponentMaterial": {
+                    "sortForAlpha": false,
+                    "clrPrimary": "[0.9254901960784314, 0.37254901960784315, 0.37254901960784315, 1]",
+                    "clrSecondary": "[1, 1, 1, 1]",
+                    "pivot": {
+                      "translation": "[0, 0]",
+                      "rotation": 0,
+                      "scaling": "[1, 1]"
+                    },
+                    "Component": {
+                      "active": true
+                    },
+                    "idMaterial": "Material|2022-10-23T16:57:53.947Z|09147"
+                  }
+                }
               ]
             },
             "children": []
@@ -40,6 +58,18 @@
       ],
       "idResource": "Graph|2022-10-23T15:53:04.511Z|77737",
       "type": "Graph"
+    }
+  },
+  "Material|2022-10-23T16:57:53.947Z|09147": {
+    "ƒ.Material": {
+      "name": "ShaderLitTextured",
+      "idResource": "Material|2022-10-23T16:57:53.947Z|09147",
+      "shader": "ShaderLitTextured",
+      "coat": {
+        "ƒ.CoatTextured": {
+          "color": "[1, 1, 1, 1]"
+        }
+      }
     }
   }
 }

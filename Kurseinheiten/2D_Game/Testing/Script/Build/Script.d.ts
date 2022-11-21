@@ -14,7 +14,7 @@ declare namespace Script {
     class TestComponent extends ƒ.ComponentScript {
         static readonly iSubclass: number;
         message: string;
-        variable: number;
+        private variable;
         constructor();
         testFunction(): void;
         hndEvent: (_event: Event) => void;
