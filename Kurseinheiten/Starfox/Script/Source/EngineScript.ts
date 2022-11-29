@@ -1,6 +1,6 @@
 namespace Starfox {
   import ƒ = FudgeCore;
-  ƒ.Project.registerScriptNamespace(Starfox);  // Register the namespace to FUDGE for serialization
+  ƒ.Project.registerScriptNamespace(Starfox,);  // Register the namespace to FUDGE for serialization
 
   export class EngineScript extends ƒ.ComponentScript {
     // Register the script as component for use in the editor via drag&drop
@@ -41,7 +41,7 @@ namespace Starfox {
     
     public update = (_event: Event): void => {
       let rigidbody: ƒ.ComponentRigidbody = this.node.getComponent(ƒ.ComponentRigidbody);
-      rigidbody.applyTorque(ƒ.Vector3.Y(1));
+      // rigidbody.applyTorque(ƒ.Vector3.Y(1));
     }
     // protected reduceMutator(_mutator: ƒ.Mutator): void {
     //   // delete properties that should not be mutated

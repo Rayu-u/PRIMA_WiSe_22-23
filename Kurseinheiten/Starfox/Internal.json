@@ -302,9 +302,9 @@
                     "isTrigger": false,
                     "id": 0,
                     "pivot": {
-                      "translation": "[0, 0, 0]",
+                      "translation": "[0, 0.06000000610947609, 0.10000000149011612]",
                       "rotation": "[0, 0, 0]",
-                      "scaling": "[1, 1, 1]"
+                      "scaling": "[0.800000011920929, 0.3500000238418579, 0.800000011920929]"
                     },
                     "Component": {
                       "active": true
