@@ -12,16 +12,28 @@ declare namespace Starfox {
     class EngineScript extends ƒ.ComponentScript {
         static readonly iSubclass: number;
         viewport: ƒ.Viewport;
+        rigidbody: ƒ.ComponentRigidbody;
         constructor();
         hndEvent: (_event: Event) => void;
         update: (_event: Event) => void;
-        crash(): void;
-        distance: number;
-        calcDistanceToTerrain(): void;
+        onSensorHit: () => void;
+        crash: () => void;
     }
 }
 declare namespace Starfox {
     import ƒ = FudgeCore;
     let shipParent: ƒ.Node;
     let cmpTerrain: ƒ.ComponentMesh;
+}
+declare namespace Starfox {
+    import ƒ = FudgeCore;
+    class SensorScript extends ƒ.ComponentScript {
+        static readonly iSubclass: number;
+        message: string;
+        constructor();
+        hndEvent: (_event: Event) => void;
+        update: (_event: Event) => void;
+        distance: number;
+        calcDistanceToTerrain(): number;
+    }
 }

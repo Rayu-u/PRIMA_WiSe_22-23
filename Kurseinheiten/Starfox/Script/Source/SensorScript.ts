@@ -1,16 +1,13 @@
 namespace Starfox {
   import ƒ = FudgeCore;
-  ƒ.Project.registerScriptNamespace(Starfox,);  // Register the namespace to FUDGE for serialization
+  ƒ.Project.registerScriptNamespace(Starfox);  // Register the namespace to FUDGE for serialization
 
-  export class EngineScript extends ƒ.ComponentScript {
+  export class SensorScript extends ƒ.ComponentScript {
     // Register the script as component for use in the editor via drag&drop
-    public static readonly iSubclass: number = ƒ.Component.registerSubclass(EngineScript);
+    public static readonly iSubclass: number = ƒ.Component.registerSubclass(SensorScript);
     // Properties may be mutated by users in the editor via the automatically created user interface
-    // public message: string = "CustomComponentScript added to ";
-    
-    viewport: ƒ.Viewport;
-    
-    rigidbody: ƒ.ComponentRigidbody;
+    public message: string = "CustomComponentScript added to ";
+
 
     constructor() {
       super();
@@ -37,30 +34,36 @@ namespace Starfox {
           this.removeEventListener(ƒ.EVENT.COMPONENT_REMOVE, this.hndEvent);
           break;
         case ƒ.EVENT.NODE_DESERIALIZED:
-          this.rigidbody = this.node.getComponent(ƒ.ComponentRigidbody);
           // if deserialized the node is now fully reconstructed and access to all its components and children is possible
-          this.rigidbody.addEventListener(ƒ.EVENT_PHYSICS.COLLISION_ENTER, this.crash);
-          this.node.addEventListener("SensorHit", this.onSensorHit);
           break;
       }
     }
-    
+
     public update = (_event: Event): void => {
-      // rigidbody.applyTorque(ƒ.Vector3.Y(1));
-      this.rigidbody.applyForce(new ƒ.Vector3(0.1, 0, 0))
+      if (!cmpTerrain) {
+        return;
+      }
+      console.log(this.calcDistanceToTerrain());
+      if (this.distance <= 0) {
+        this.node.dispatchEvent(new Event("SensorHit", {bubbles: true}));
+      }
     }
+
+    distance: number;
+
+    calcDistanceToTerrain(): number {
+      let parent: ƒ.Node = this.node.getParent();
+      let tInfo: ƒ.TerrainInfo = (<ƒ.MeshTerrain>cmpTerrain.mesh).getTerrainInfo(
+        parent.mtxWorld.translation,
+        cmpTerrain.mtxWorld
+        )
+      this.distance = tInfo.distance;
+      return this.distance;
+    }
+
     // protected reduceMutator(_mutator: ƒ.Mutator): void {
     //   // delete properties that should not be mutated
     //   // undefined properties and private fields (#) will not be included by default
     // }
-    
-    onSensorHit = (): void => {
-      console.log("sensor hit");
-    }    
-    crash = (): void => {
-      console.log("crash");
-
-    }
-    //task: Joints angucken, explosions 
   }
 }
