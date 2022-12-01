@@ -45,6 +45,7 @@ var Starfox;
         static iSubclass = ƒ.Component.registerSubclass(EngineScript);
         // Properties may be mutated by users in the editor via the automatically created user interface
         // public message: string = "CustomComponentScript added to ";
+        viewport;
         constructor() {
             super();
             // Don't start when running in editor
@@ -73,8 +74,22 @@ var Starfox;
         };
         update = (_event) => {
             let rigidbody = this.node.getComponent(ƒ.ComponentRigidbody);
-            rigidbody.applyTorque(ƒ.Vector3.Y(1));
+            rigidbody.addEventListener("ColliderEnteredCollision" /* ƒ.EVENT_PHYSICS.COLLISION_ENTER */, this.crash);
+            // rigidbody.applyTorque(ƒ.Vector3.Y(1));
+            rigidbody.applyForce(new ƒ.Vector3(0.2, -0.5, 0));
         };
+        // protected reduceMutator(_mutator: ƒ.Mutator): void {
+        //   // delete properties that should not be mutated
+        //   // undefined properties and private fields (#) will not be included by default
+        // }
+        crash() {
+            console.log("crash");
+        }
+        distance;
+        calcDistanceToTerrain() {
+            let tInfo = Starfox.cmpTerrain.mesh.getTerrainInfo(Starfox.shipParent.getChildren()[0].mtxLocal.translation, Starfox.cmpTerrain.mtxWorld);
+            this.distance = tInfo.distance;
+        }
     }
     Starfox.EngineScript = EngineScript;
 })(Starfox || (Starfox = {}));
@@ -86,6 +101,8 @@ var Starfox;
     document.addEventListener("interactiveViewportStarted", start);
     function start(_event) {
         viewport = _event.detail;
+        Starfox.cmpTerrain = viewport.getBranch().getChildrenByName("Terrain")[0].getComponent(ƒ.ComponentMesh);
+        Starfox.shipParent = viewport.getBranch().getChildrenByName("RaumschiffTransform")[0];
         ƒ.Loop.addEventListener("loopFrame" /* ƒ.EVENT.LOOP_FRAME */, update);
         ƒ.Loop.start(); // start the game loop to continously draw the viewport, update the audiosystem and drive the physics i/a
     }

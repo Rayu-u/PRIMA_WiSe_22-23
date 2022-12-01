@@ -8,6 +8,7 @@ namespace Starfox {
     // Properties may be mutated by users in the editor via the automatically created user interface
     // public message: string = "CustomComponentScript added to ";
 
+    viewport: ƒ.Viewport;
 
     constructor() {
       super();
@@ -41,11 +42,29 @@ namespace Starfox {
     
     public update = (_event: Event): void => {
       let rigidbody: ƒ.ComponentRigidbody = this.node.getComponent(ƒ.ComponentRigidbody);
+      rigidbody.addEventListener(ƒ.EVENT_PHYSICS.COLLISION_ENTER, this.crash)
       // rigidbody.applyTorque(ƒ.Vector3.Y(1));
+      rigidbody.applyForce(new ƒ.Vector3(0.2, -0.5, 0))
     }
     // protected reduceMutator(_mutator: ƒ.Mutator): void {
     //   // delete properties that should not be mutated
     //   // undefined properties and private fields (#) will not be included by default
     // }
+    
+    crash(): void {
+      console.log("crash");
+
+    }
+
+    distance: number;
+
+    calcDistanceToTerrain(): void {
+      let tInfo: ƒ.TerrainInfo = (<ƒ.MeshTerrain>cmpTerrain.mesh).getTerrainInfo(
+        shipParent.getChildren()[0].mtxLocal.translation,
+        cmpTerrain.mtxWorld
+        )
+      this.distance = tInfo.distance
+    }
+    //task: Joints angucken, explosions 
   }
 }
