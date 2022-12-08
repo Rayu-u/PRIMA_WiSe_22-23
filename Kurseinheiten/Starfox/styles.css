@@ -14,3 +14,11 @@ canvas.fullscreen {
   width: 100vw; 
   height: 100vh; 
 }
+
+#vui {
+  position: absolute;
+  width: 30px;
+  top: 10px;
+  left: 10px;
+  z-index: 100;
+}

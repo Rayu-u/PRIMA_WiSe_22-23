@@ -21,9 +21,19 @@ declare namespace Starfox {
     }
 }
 declare namespace Starfox {
+    class GameState extends ƒ.Mutable {
+        protected reduceMutator(_mutator: ƒ.Mutator): void;
+        height: number;
+        velocity: number;
+        private controller;
+        constructor();
+    }
+}
+declare namespace Starfox {
     import ƒ = FudgeCore;
     let shipParent: ƒ.Node;
     let cmpTerrain: ƒ.ComponentMesh;
+    let gameState: GameState;
 }
 declare namespace Starfox {
     import ƒ = FudgeCore;

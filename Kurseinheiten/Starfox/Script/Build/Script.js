@@ -77,8 +77,14 @@ var Starfox;
             }
         };
         update = (_event) => {
+            if (!Starfox.gameState) {
+                return;
+            }
             // rigidbody.applyTorque(ƒ.Vector3.Y(1));
-            this.rigidbody.applyForce(new ƒ.Vector3(0.1, 0, 0));
+            this.rigidbody.applyForce(new ƒ.Vector3(0.1, 0.1, 0));
+            Starfox.gameState.height = parseFloat(this.node.mtxWorld.translation.y.toFixed(3));
+            console.log(Starfox.gameState.height);
+            Starfox.gameState.velocity = parseFloat(this.rigidbody.getVelocity().magnitude.toFixed(3));
         };
         // protected reduceMutator(_mutator: ƒ.Mutator): void {
         //   // delete properties that should not be mutated
@@ -95,11 +101,29 @@ var Starfox;
 })(Starfox || (Starfox = {}));
 var Starfox;
 (function (Starfox) {
+    var ƒui = FudgeUserInterface;
+    class GameState extends ƒ.Mutable {
+        // überschreibt, was später nicht rausgegeben werden soll
+        reduceMutator(_mutator) { }
+        height = 1;
+        velocity = 2;
+        controller;
+        constructor() {
+            super();
+            this.controller = new ƒui.Controller(this, document.querySelector("#vui"));
+            console.log(this.controller);
+        }
+    }
+    Starfox.GameState = GameState;
+})(Starfox || (Starfox = {}));
+var Starfox;
+(function (Starfox) {
     var ƒ = FudgeCore;
     ƒ.Debug.info("Main Program Template running!");
     let viewport;
     document.addEventListener("interactiveViewportStarted", start);
     function start(_event) {
+        Starfox.gameState = new Starfox.GameState();
         viewport = _event.detail;
         Starfox.cmpTerrain = viewport.getBranch().getChildrenByName("Terrain")[0].getComponent(ƒ.ComponentMesh);
         Starfox.shipParent = viewport.getBranch().getChildrenByName("RaumschiffTransform")[0];
@@ -151,7 +175,7 @@ var Starfox;
             if (!Starfox.cmpTerrain) {
                 return;
             }
-            console.log(this.calcDistanceToTerrain());
+            this.calcDistanceToTerrain();
             if (this.distance <= 0) {
                 this.node.dispatchEvent(new Event("SensorHit", { bubbles: true }));
             }

@@ -46,8 +46,15 @@ namespace Starfox {
     }
     
     public update = (_event: Event): void => {
+      if (!gameState) {
+        return;
+      }
       // rigidbody.applyTorque(ƒ.Vector3.Y(1));
-      this.rigidbody.applyForce(new ƒ.Vector3(0.1, 0, 0))
+      this.rigidbody.applyForce(new ƒ.Vector3(0.1, 0.1, 0));
+
+      gameState.height = parseFloat(this.node.mtxWorld.translation.y.toFixed(3));
+      console.log(gameState.height);
+      gameState.velocity = parseFloat(this.rigidbody.getVelocity().magnitude.toFixed(3));
     }
     // protected reduceMutator(_mutator: ƒ.Mutator): void {
     //   // delete properties that should not be mutated

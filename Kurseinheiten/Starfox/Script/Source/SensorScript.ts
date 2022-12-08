@@ -43,7 +43,7 @@ namespace Starfox {
       if (!cmpTerrain) {
         return;
       }
-      console.log(this.calcDistanceToTerrain());
+      this.calcDistanceToTerrain();
       if (this.distance <= 0) {
         this.node.dispatchEvent(new Event("SensorHit", {bubbles: true}));
       }

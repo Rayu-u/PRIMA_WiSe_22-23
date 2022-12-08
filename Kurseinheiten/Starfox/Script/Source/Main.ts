@@ -9,7 +9,10 @@ namespace Starfox {
   export let shipParent: ƒ.Node;
   export let cmpTerrain: ƒ.ComponentMesh;
 
+  export let gameState: GameState
+
   function start(_event: CustomEvent): void {
+    gameState = new GameState();
     viewport = _event.detail;
 
     cmpTerrain = viewport.getBranch().getChildrenByName("Terrain")[0].getComponent(ƒ.ComponentMesh);
